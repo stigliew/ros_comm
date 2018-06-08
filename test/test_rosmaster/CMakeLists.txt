@@ -35,4 +35,8 @@ catkin_package()
 if(CATKIN_ENABLE_TESTING)
   add_rostest(test/rosmaster.test)
   add_rostest(test/paramserver.test)
+
+  catkin_install_python(
+    PROGRAMS test/nodes/add_two_ints_server test/nodes/fake_time.py
+    DESTINATION ${CATKIN_PACKAGE_BIN_DESTINATION})
 endif()
