@@ -32,6 +32,8 @@
 #
 # Revision $Id$
 
+import logging
+
 from rosmaster.util import remove_server_proxy
 from rosmaster.util import xmlrpcapi
 import rosmaster.exceptions
@@ -388,6 +390,7 @@ class RegistrationManager(object):
         # update node information
         node_ref, changed = self._register_node_api(caller_id, caller_api)
         node_ref.add(r.type, key)
+        logging.getLogger('rosmaster.master').info("_register: %s %s %s %s", key, caller_id, caller_api, service_api)
         # update pub/sub/service indicies
         if changed:
             self.publishers.unregister_all(caller_id)
@@ -398,6 +401,7 @@ class RegistrationManager(object):
         
     def _unregister(self, r, key, caller_id, caller_api, service_api=None):
         node_ref = self.nodes.get(caller_id, None)
+        logging.getLogger('rosmaster.master').info("_unregister: %s %s %s %s", key, caller_id, caller_api, service_api)
         if node_ref != None:
             retval = r.unregister(key, caller_id, caller_api, service_api)
             # check num removed field, if 1, unregister is valid
@@ -463,6 +467,9 @@ class RegistrationManager(object):
                 return node_ref, False
             else:
                 bumped_api = node_ref.api
+                logging.getLogger('rosmaster.master').info("_register_node_api: %s, %s, %s", caller_id, bumped_api, caller_api)
+                for i in range(len(node_ref.param_subscriptions)):
+                    logging.getLogger('rosmaster.master').info("%s", node_ref.param_subscriptions[i])
                 self.thread_pool.queue_task(bumped_api, shutdown_node_task,
                                             (bumped_api, caller_id, "new node registered with same name"))
 
